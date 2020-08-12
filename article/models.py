@@ -1,3 +1,50 @@
 from django.db import models
+from ckeditor_uploader.fields import RichTextUploadingField
+from django.utils.safestring import mark_safe
 
-# Create your models here.
+
+class Category(models.Model):
+    STATUS = (
+        ('True', 'Mavjud'),
+        ('False', 'Mavjud emas'),
+    )
+    title = models.CharField(max_length=50)
+    keywords = models.CharField(max_length=255, unique=True)
+    description = models.CharField(max_length=255)
+    status = models.CharField(max_length=15, choices=STATUS)
+    slug = models.SlugField
+    create_at = models.DateTimeField(auto_now_add=True)
+    update_at = models.DateTimeField(auto_add=True)
+
+    def __str__(self):
+        self.title
+
+
+class Articles(models.Model):
+    STATUS = (
+        ('True', 'Mavjud'),
+        ('False', 'Mavjud emas'),
+    )
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    title = models.CharField(max_length=50, unique=True)
+    keywords = models.CharField(max_length=255, unique=True)
+
+    description = RichTextUploadingField()
+    image = models.ImageField(blank=True, upload_to='images/')
+    status = models.CharField(max_length=15, choices=STATUS)
+    slug = models.SlugField
+    create_at = models.DateTimeField(auto_now_add=True)
+    update_at = models.DateTimeField(auto_add=True)
+
+    def __str__(self):
+        self.title
+
+    def image_tag(self):
+        return mark_safe('<img src ="{}" height="50">'.format(self.image.url))
+
+    image_tag.short_description = 'Image'
+
+
+class Images(models.Model):
+    article = models.ForeignKey(Articles, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255, blank=True)
